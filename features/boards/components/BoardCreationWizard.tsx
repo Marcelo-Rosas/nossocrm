@@ -170,11 +170,12 @@ export const BoardCreationWizard: React.FC<BoardCreationWizardProps> = ({
     // Only Infoproducer exposes the optional "subscription renewals" step for now.
     if (journeyId !== 'INFOPRODUCER' || !includeSubscriptionRenewals) return base;
 
-    // Insert renewals after CS health (market-aligned) and keep expansion separate.
+    // UX: for infoproducts, it's often easier to understand renewals as "after upsell",
+    // even though in practice it runs as a parallel cadence. We keep the board optional.
     const renewalsBoard = buildRenewalsBoard();
     const nextBoards = [...base.boards];
-    const csIndex = nextBoards.findIndex(b => b.slug === 'cs');
-    const insertAt = csIndex >= 0 ? csIndex + 1 : nextBoards.length;
+    const expansionIndex = nextBoards.findIndex(b => b.slug === 'expansion');
+    const insertAt = expansionIndex >= 0 ? expansionIndex + 1 : nextBoards.length;
     nextBoards.splice(insertAt, 0, renewalsBoard);
 
     return { ...base, boards: nextBoards };
