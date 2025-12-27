@@ -31,13 +31,7 @@ export async function POST(request: Request) {
     email: parsed.data.email ?? null,
     target: { to_stage_id: parsed.data.to_stage_id ?? null, to_stage_label: parsed.data.to_stage_label ?? null },
   });
-  // Compatibility alias (old name) — keep working, but signal deprecation.
-  return new NextResponse(JSON.stringify(res.body), {
-    status: res.status,
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Deprecation': 'true',
-    },
-  });
+  // Compatibility alias (old name) — keep working.
+  return NextResponse.json(res.body, { status: res.status });
 }
 

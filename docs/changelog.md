@@ -78,7 +78,9 @@
   - Implementados endpoints essenciais (escopo B): **Companies**, **Contacts**, **Deals**, **Activities** e ações (`move-stage`, `mark-won`, `mark-lost`), com OpenAPI atualizado e botões “Copiar cURL”/“Testar agora” na UI.
   - Swagger UI em `GET /api/public/v1/docs` (renderiza o OpenAPI do CRM), com CSS refinado para um visual mais clean e legível.
   - DX: `move-stage` agora aceita `to_stage_label` (além de `to_stage_id`) e resolve a etapa automaticamente dentro do board do deal.
-  - DX: endpoint “sem UUID” para automações agora é `POST /api/public/v1/deals/move-stage` (board + phone/email + `to_stage_label`). (`/deals/move-stage-by-identity` ficou deprecated/alias.)
+  - DX: endpoint “sem UUID” para automações agora é `POST /api/public/v1/deals/move-stage` (board + phone/email + `to_stage_label`). (Mantido também `POST /api/public/v1/deals/move-stage-by-identity` por compatibilidade.)
+  - UX: seletor de etapas no assistente mostra apenas o **nome da etapa** (sem sufixo de UUID).
+  - UX: em **Chaves existentes**, agora é possível **excluir** chaves **revogadas** (com confirmação).
   - UX (produto): o assistente agora usa dados do próprio app (boards/deals/stages) para montar o cURL **com valores reais** (wizard dinâmico), e a **API key virou independente do wizard** (colar/validar chave é opcional e fica só em memória).
 - **Debug Mode (UX)**:
   - Debug agora é **reativo** (sem refresh): toggle dispara evento (`DEBUG_MODE_EVENT`) e `DebugFillButton` usa `useDebugMode`.

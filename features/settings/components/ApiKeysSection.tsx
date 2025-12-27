@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Key, Copy, ExternalLink, CheckCircle2, Plus, Trash2, ShieldCheck, RefreshCw, TerminalSquare, Play } from 'lucide-react';
 
+import ConfirmModal from '@/components/ConfirmModal';
 import { useOptionalToast } from '@/context/ToastContext';
 import { useBoards } from '@/context/boards/BoardsContext';
 import { supabase } from '@/lib/supabase/client';
@@ -29,6 +30,9 @@ export const ApiKeysSection: React.FC = () => {
   const [loadingKeys, setLoadingKeys] = useState(false);
   const [creating, setCreating] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ApiKeyRow | null>(null);
   const [newKeyName, setNewKeyName] = useState('n8n');
   const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [createdPrefix, setCreatedPrefix] = useState<string | null>(null);
@@ -129,6 +133,38 @@ export const ApiKeysSection: React.FC = () => {
     } finally {
       setRevokingId(null);
     }
+  };
+
+  const deleteRevokedKey = async (id: string) => {
+    if (!supabase) {
+      addToast('Supabase não configurado neste ambiente.', 'error');
+      return;
+    }
+    setDeletingId(id);
+    try {
+      // Segurança: só permite excluir se já estiver revogada
+      const { error } = await supabase
+        .from('api_keys')
+        .delete()
+        .eq('id', id)
+        .not('revoked_at', 'is', null);
+      if (error) throw error;
+      addToast('Chave excluída.', 'success');
+      await loadKeys();
+    } catch (e: any) {
+      addToast(e?.message || 'Erro ao excluir chave', 'error');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const openDeleteConfirm = (k: ApiKeyRow) => {
+    if (!k.revoked_at) {
+      addToast('Você só pode excluir chaves revogadas.', 'warning');
+      return;
+    }
+    setDeleteTarget(k);
+    setDeleteConfirmOpen(true);
   };
 
   const testMe = async () => {
@@ -509,7 +545,7 @@ export const ApiKeysSection: React.FC = () => {
                     <option value="">Selecione…</option>
                     {stagesForBoard.map((s) => (
                       <option key={s.id} value={s.id}>
-                        {s.label} — {s.id.slice(0, 8)}
+                        {s.label}
                       </option>
                     ))}
                   </select>
@@ -668,15 +704,27 @@ export const ApiKeysSection: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      disabled={!!k.revoked_at || revokingId === k.id}
-                      onClick={() => revokeKey(k.id)}
-                      className="px-3 py-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-rose-500/10 disabled:opacity-60 text-rose-700 dark:text-rose-300 text-sm font-semibold inline-flex items-center gap-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      {revokingId === k.id ? 'Revogando…' : 'Revogar'}
-                    </button>
+                    {k.revoked_at ? (
+                      <button
+                        type="button"
+                        disabled={deletingId === k.id}
+                        onClick={() => openDeleteConfirm(k)}
+                        className="px-3 py-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-rose-500/10 disabled:opacity-60 text-rose-700 dark:text-rose-300 text-sm font-semibold inline-flex items-center gap-2"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        {deletingId === k.id ? 'Excluindo…' : 'Excluir'}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={revokingId === k.id}
+                        onClick={() => revokeKey(k.id)}
+                        className="px-3 py-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-rose-500/10 disabled:opacity-60 text-rose-700 dark:text-rose-300 text-sm font-semibold inline-flex items-center gap-2"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        {revokingId === k.id ? 'Revogando…' : 'Revogar'}
+                      </button>
+                    )}
                   </div>
                 </div>
               ))
@@ -684,6 +732,31 @@ export const ApiKeysSection: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          void deleteRevokedKey(deleteTarget.id);
+        }}
+        title="Excluir chave revogada?"
+        message={
+          <div className="space-y-2">
+            <div>Essa chave será removida permanentemente.</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400">
+              {deleteTarget ? (
+                <>
+                  <span className="font-semibold">{deleteTarget.name}</span> — <span className="font-mono">{deleteTarget.key_prefix}…</span>
+                </>
+              ) : null}
+            </div>
+          </div>
+        }
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        variant="danger"
+      />
     </SettingsSection>
   );
 };

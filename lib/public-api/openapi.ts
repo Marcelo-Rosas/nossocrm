@@ -564,7 +564,6 @@ export function getPublicApiOpenApiDocument(): OpenApiDocument {
           summary: 'Mover etapa do deal por telefone/email (sem UUID)',
           description:
             'Resolve o deal aberto dentro de um board usando `phone` e/ou `email` (regra: 1 deal aberto por board por telefone OU email) e move para a etapa indicada.',
-          deprecated: true,
           security: [{ ApiKeyAuth: [] }],
           requestBody: {
             required: true,
