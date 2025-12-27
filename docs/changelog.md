@@ -2,6 +2,9 @@
 
 ## 27/12/2025
 
+- **Docs (Segurança/RBAC)**:
+  - Adicionada matriz de permissões **admin vs vendedor** (telas/menus + endpoints) em `docs/security/RBAC.md`, incluindo notas de enforcement server-side (403) e proteção de segredos (IA).
+
 - **Integrações → MCP (produto)**:
   - Reformulada a seção de MCP para ser “produto”: wizard em 3 passos (gerar key → colar → testar), status “Conectado”, botões de copiar (URL completa / comando do MCP Inspector / cURLs) e mensagem clara sobre **ChatGPT exigir OAuth (Fase 2)**.
   - Detalhe técnico: o teste da UI chama `initialize` + `tools/list` no endpoint `/api/mcp` usando `Authorization: Bearer` (e fallback `X-Api-Key`) e reporta quantidade/preview de tools.
@@ -53,6 +56,7 @@
       - deletar projeto via `DELETE /v1/projects/{ref}` (destrutivo; exige confirmação digitando o `ref`)
     - Detalhe técnico: o Wizard usa `GET /v1/organizations/{slug}` para exibir o `plan` e `GET /v1/organizations/{slug}/projects` (com filtro de status) para contar/mostrar projetos por org.
     - Fix: lista de projetos ativos agora mostra **todos os itens** (com scroll) e ao trocar de organização a UI **invalida cache e refaz fetch automaticamente**.
+    - UX: o passo Supabase agora é um **mini-wizard real** (PAT → Projeto → Auto-preenchimento), mostrando **uma etapa por vez** e mantendo as etapas concluídas como **resumos colapsados** com “editar”.
 
 - **Build (fix)**:
   - Corrigidos erros de typecheck no build (`next build`):

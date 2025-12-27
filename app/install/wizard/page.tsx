@@ -819,72 +819,86 @@ export default function InstallWizardPage() {
                       Supabase: configuração guiada
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      1) cole o <b>PAT</b> • 2) escolha/crie o projeto • 3) o sistema resolve o resto
-                      (keys + dbUrl) automaticamente.
+                      Vamos por partes: <b>PAT</b> → <b>projeto</b> → <b>auto-preenchimento</b>. Aqui aparece
+                      apenas <b>uma etapa por vez</b> (e você pode voltar/editar a qualquer momento).
                     </p>
                   </div>
 
-                  {/* Step 1: PAT */}
-                  <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-900/50 space-y-3">
-                    <div className="flex items-center justify-between gap-3">
+                  {/* Step 1: PAT (active) */}
+                  {supabaseUiStep === 'pat' ? (
+                    <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-900/50 space-y-3">
                       <div className="text-sm font-semibold text-slate-900 dark:text-white">
                         1) Cole seu Supabase PAT
                       </div>
-                      {supabaseUiStep !== 'pat' ? (
+                      <input
+                        type="password"
+                        value={supabaseAccessToken}
+                        onChange={(e) => setSupabaseAccessToken(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                        placeholder="sbp_..."
+                      />
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Use o <b>Access Token (PAT)</b> (geralmente começa com <code>sbp_</code>).{' '}
+                        <b>Não</b> é o token de <i>Experimental API</i>. Gere em{' '}
+                        <a
+                          href="https://supabase.com/dashboard/account/tokens"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline underline-offset-2"
+                        >
+                          supabase.com/dashboard/account/tokens
+                        </a>
+                        .
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            setSupabaseUiStep('project');
+                            await loadSupabaseOrgs();
+                          }}
+                          disabled={!supabaseAccessToken.trim()}
+                          className="px-3 py-2 rounded-lg text-sm font-semibold bg-primary-600 text-white hover:bg-primary-500 disabled:opacity-50"
+                        >
+                          Continuar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSupabaseAdvanced(true)}
+                          className="text-xs underline underline-offset-2 text-slate-600 dark:text-slate-300"
+                        >
+                          configurar manualmente (avançado)
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-white/70 dark:bg-slate-900/30 space-y-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                          1) PAT ✅
+                        </div>
                         <button
                           type="button"
                           onClick={() => setSupabaseUiStep('pat')}
                           className="text-xs underline underline-offset-2 text-slate-600 dark:text-slate-300"
                         >
-                          voltar
+                          editar
                         </button>
-                      ) : null}
+                      </div>
+                      <div className="text-xs text-slate-600 dark:text-slate-300">
+                        {supabaseAccessToken.trim() ? (
+                          <>
+                            Token: <span className="font-mono">{maskValue(supabaseAccessToken)}</span>
+                          </>
+                        ) : (
+                          'Token: —'
+                        )}
+                      </div>
                     </div>
-                    <input
-                      type="password"
-                      value={supabaseAccessToken}
-                      onChange={(e) => setSupabaseAccessToken(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
-                      placeholder="sbp_..."
-                    />
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Use o <b>Access Token (PAT)</b> (geralmente começa com <code>sbp_</code>).{' '}
-                      <b>Não</b> é o token de <i>Experimental API</i>. Gere em{' '}
-                      <a
-                        href="https://supabase.com/dashboard/account/tokens"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline underline-offset-2"
-                      >
-                        supabase.com/dashboard/account/tokens
-                      </a>
-                      .
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          setSupabaseUiStep('project');
-                          // Load orgs early so we can ask org-first when needed.
-                          await loadSupabaseOrgs();
-                        }}
-                        disabled={!supabaseAccessToken.trim()}
-                        className="px-3 py-2 rounded-lg text-sm font-semibold bg-primary-600 text-white hover:bg-primary-500 disabled:opacity-50"
-                      >
-                        Continuar
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSupabaseAdvanced(true)}
-                        className="text-xs underline underline-offset-2 text-slate-600 dark:text-slate-300"
-                      >
-                        configurar manualmente (avançado)
-                      </button>
-                    </div>
-                  </div>
+                  )}
 
                   {/* Step 2: Choose / create project */}
-                  {supabaseUiStep !== 'pat' ? (
+                  {supabaseUiStep === 'project' ? (
                     <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-900/50 space-y-3">
                       <div className="flex items-center justify-between gap-3">
                         <div className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -1329,7 +1343,36 @@ export default function InstallWizardPage() {
                   ) : null}
 
                   {/* Step 3: final + toggles */}
-                  {supabaseUrl.trim() ? (
+                  {supabaseUiStep === 'final' && supabaseUrl.trim() ? (
+                    <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-white/70 dark:bg-slate-900/30 space-y-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                          2) Projeto ✅
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSupabaseUiStep('project')}
+                          className="text-xs underline underline-offset-2 text-slate-600 dark:text-slate-300"
+                        >
+                          editar
+                        </button>
+                      </div>
+                      <div className="text-xs text-slate-600 dark:text-slate-300">
+                        Org:{' '}
+                        <span className="font-mono">
+                          {supabaseSelectedOrgSlug || supabaseCreateOrgSlug || '—'}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-600 dark:text-slate-300">
+                        Projeto:{' '}
+                        <span className="font-mono">
+                          {supabaseProjectRef || inferProjectRefFromSupabaseUrl(supabaseUrl.trim()) || '—'}
+                        </span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {supabaseUiStep === 'final' && supabaseUrl.trim() ? (
                     <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-900/50 space-y-3">
                       <div className="text-sm font-semibold text-slate-900 dark:text-white">
                         3) Pronto — agora é só deixar o sistema fazer o resto
