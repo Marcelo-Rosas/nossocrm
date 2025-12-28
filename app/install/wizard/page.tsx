@@ -860,17 +860,6 @@ export default function InstallWizardPage() {
     }
   };
 
-  if (!isHydrated) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
-      </div>
-    );
-  }
-  
-  const goNext = () => setCurrentStep((s) => Math.min(s + 1, 2));
-  const goBack = () => router.push('/install/start');
-
   const applyNewInstallerPassword = useCallback(async () => {
     const pass = newPassword;
     const confirm = newPasswordConfirm;
@@ -896,6 +885,19 @@ export default function InstallWizardPage() {
     setShowNewPassword(false);
     setShowChangePasswordModal(false);
   }, [newPassword, newPasswordConfirm]);
+
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
+      </div>
+    );
+  }
+  
+  const goNext = () => setCurrentStep((s) => Math.min(s + 1, 2));
+  const goBack = () => router.push('/install/start');
+
+  
 
   return (
     <div
