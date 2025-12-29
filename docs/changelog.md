@@ -683,3 +683,11 @@
   - Suporte a evento `step_complete` para marcar etapas como `completed`
 - **Resiliência**: `reader.read()` agora tem erro amigável para oscilação de rede, mantendo estado salvo para retomar
 - **Confiabilidade DB**: `buildDbUrl` agora usa região real do projeto (via `/project-status`) para escolher o pooler correto (`aws-0-REGION.pooler.supabase.com`)
+
+### 29/12/2025 — Public repo hardening (higiene + privacidade)
+
+- **Segurança/Privacidade**: Removidos do git arquivos gerados que continham **PII** e relatórios locais (testsprite)
+  - `testsprite_tests/tmp/` agora é ignorado
+- **Higiene**: Removidos planos pessoais do Cursor do tracking
+  - `.cursor/plans/` agora é ignorado
+- **Observação**: `.env.example` permanece apenas com placeholders (sem segredos)

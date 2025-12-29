@@ -35,6 +35,12 @@ yarn-error.log*
 # local dev logs
 dev_server.log
 
+# Cursor IDE (plans are local/personal)
+.cursor/plans/
+
+# testsprite generated artifacts (may contain PII)
+testsprite_tests/tmp/
+
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example
