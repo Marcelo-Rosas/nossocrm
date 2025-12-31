@@ -7,7 +7,7 @@ import { DealDetailModal } from '@/features/boards/components/Modals/DealDetailM
 import { runStorySteps } from './storyRunner';
 
 // Story: US-001 — Abrir um deal no Boards
-// See: docs/stories/US-001-abrir-deal-no-boards.md
+// User Story: Abrir deal no Boards sem crash
 
 vi.mock('@/hooks/useResponsiveMode', () => ({
   useResponsiveMode: () => ({ mode: 'desktop' }),
