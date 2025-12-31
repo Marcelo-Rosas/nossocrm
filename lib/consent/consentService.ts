@@ -302,7 +302,7 @@ class ConsentService {
  * 
  * @example
  * ```typescript
- * import { consentService } from '@/services/consentService';
+ * import { consentService } from '@/lib/consent/consentService';
  * 
  * const hasConsent = await consentService.hasRequiredConsents();
  * ```
