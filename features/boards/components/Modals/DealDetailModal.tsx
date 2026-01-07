@@ -171,14 +171,22 @@ export const DealDetailModal: React.FC<DealDetailModalProps> = ({ dealId, isOpen
   useEffect(() => {
     if (!isOpen || !deal?.status) return;
 
-    const supabase = createClient();
+    const sb = createClient();
+    if (!sb) {
+      setStageSchema(null);
+      return;
+    }
+
+    let cancelled = false;
 
     (async () => {
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from('stage_form_schemas')
         .select('schema')
         .eq('stage_id', deal.status)
         .single();
+
+      if (cancelled) return;
 
       if (error) {
         console.error('[DealDetailModal] stage_form_schemas load failed:', error);
@@ -188,6 +196,10 @@ export const DealDetailModal: React.FC<DealDetailModalProps> = ({ dealId, isOpen
 
       setStageSchema((data?.schema as StageFormSchema) ?? null);
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen, deal?.status]);
 
   // Reset state when deal changes or modal opens
