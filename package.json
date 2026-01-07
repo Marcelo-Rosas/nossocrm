@@ -83,5 +83,4 @@
     "vitest": "^4.0.0",
     "vitest-axe": "^0.1.0"
   },
-  "type": "module"
 }
