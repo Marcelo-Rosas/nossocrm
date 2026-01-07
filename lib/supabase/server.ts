@@ -1,4 +1,4 @@
-import 'server-only'
+import "server-only";
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
@@ -76,4 +76,3 @@ export function createStaticAdminClient() {
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 }
-
